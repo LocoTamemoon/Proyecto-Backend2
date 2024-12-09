@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 
 import com.gestion.tasking.entity.Tarea;
 import com.gestion.tasking.model.AuthResponse;
@@ -106,6 +108,96 @@ public class TareaController {
 
         return ResponseEntity.ok(tareasResponse); // Respuesta con fechaCreacion
     }
+
+
+
+
+     @PutMapping("/{id}")
+    public ResponseEntity<?> actualizarTarea(@PathVariable int id, @RequestBody Tarea tarea) {
+        try {
+            // Verificar si la tarea existe
+            if (!tareaService.existeTarea(id)) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(new AuthResponse(400, "La tarea con el ID " + id + " no existe."));
+            }
+
+            // Validaciones de los campos de la tarea
+            if (tarea.getNombre() == null || tarea.getNombre().isEmpty()) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body(new AuthResponse(400, "El nombre de la tarea es obligatorio."));
+            }
+            if (tarea.getDescripcion() == null || tarea.getDescripcion().isEmpty()) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body(new AuthResponse(400, "La descripción de la tarea es obligatoria."));
+            }
+            if (tarea.getPrioridad() == null) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body(new AuthResponse(400, "La prioridad de la tarea es obligatoria."));
+            }
+            if (tarea.getEstado() == null) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body(new AuthResponse(400, "El estado de la tarea es obligatorio."));
+            }
+            if (tarea.getFechaVencimiento() == null) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                        .body(new AuthResponse(400, "La fecha de vencimiento es obligatoria."));
+            }
+
+            // Actualizar la tarea si pasa todas las validaciones
+            Tarea actualizarTarea = tareaService.actualizarTarea(
+                    id,
+                    tarea.getNombre(),
+                    tarea.getDescripcion(),
+                    tarea.getPrioridad(),
+                    tarea.getEstado(),
+                    tarea.getFechaVencimiento()
+            );
+
+            return ResponseEntity.ok(actualizarTarea);
+
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
+    }
+
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<AuthResponse> eliminarTarea(@PathVariable int id) {
+        try {
+            // Verificar si la tarea existe
+            if (!tareaService.existeTarea(id)) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(new AuthResponse(400, "La tarea con el ID " + id + " no existe."));
+            }
+
+            // Si la tarea existe, proceder con la eliminación
+            tareaService.eliminarTarea(id);
+            return ResponseEntity.ok(new AuthResponse(200, "Tarea con ID " + id + " eliminada exitosamente"));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new AuthResponse(500, "Ocurrió un error al eliminar la tarea"));
+        }
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
 
 
 
