@@ -84,4 +84,68 @@ public class TareaDAOImpl implements TareaDAO {
 
 
 
+      
+    @Override
+    public Tarea actualizarTarea(int idTarea, String nombre, String descripcion,
+                                  Integer prioridad, Integer estado, String fechaVencimiento) throws Exception {
+        // Llamar al stored procedure para actualizar la tarea
+        String procedureCall = "{CALL actualizar_tarea(?, ?, ?, ?, ?, ?)}";
+
+        try {
+            jdbcTemplate.update(procedureCall, idTarea, nombre, descripcion, prioridad, estado, fechaVencimiento);
+        } catch (DataAccessException e) {
+            // Comprobamos si el errorCode es 45000 (nombre duplicado)
+            if (e.getMessage().contains("45000")) {
+                // Lanzar excepción con el código de error y el mensaje conciso
+                throw new Exception("{\"error\": 1644, \"message\": \"Ya existe una tarea con el mismo nombre en este proyecto.\"}");
+            } else {
+                // Si es otro tipo de error, lanzar la excepción original
+                throw new Exception("{\"error\": 500, \"message\": \"Error al actualizar la tarea: " + e.getMessage() + "\"}");
+            }
+        }
+
+        // Si la tarea se actualiza correctamente
+        Tarea tarea = new Tarea();
+        tarea.setNombre(nombre);
+        tarea.setDescripcion(descripcion);
+        tarea.setPrioridad(prioridad);
+        tarea.setEstado(estado);
+        tarea.setFechaVencimiento(java.time.LocalDate.parse(fechaVencimiento));
+
+        return tarea;
+    }
+
+    @Override
+    public void eliminarTarea(int idTarea) throws Exception {
+        String procedureCall = "{CALL eliminar_tarea(?)}";
+
+        try {
+            jdbcTemplate.update(procedureCall, idTarea);
+        } catch (DataAccessException e) {
+            throw new Exception("{\"error\": 500, \"message\": \"Error al eliminar la tarea: " + e.getMessage() + "\"}");
+        }
+    }
+    
+    @Override
+    public boolean existeTarea(int idTarea) throws Exception {
+        String sql = "SELECT COUNT(*) FROM tg_tareas WHERE id_tg_tareas = ?";
+        try {
+            Integer count = jdbcTemplate.queryForObject(sql, Integer.class, idTarea);
+            return count != null && count > 0;
+        } catch (DataAccessException e) {
+            throw new Exception("Error al verificar la existencia de la tarea: " + e.getMessage());
+        }
+    }
+
+
+
+
+
+
+
+
+    
+
+
+
 }
