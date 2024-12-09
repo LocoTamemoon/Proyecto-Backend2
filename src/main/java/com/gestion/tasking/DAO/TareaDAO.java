@@ -14,6 +14,27 @@ public interface TareaDAO {
     
     List<Tarea> obtenerTareasPorProyecto(int idProyecto);
 
+
+
+
+    Tarea actualizarTarea(int idTarea, String nombre, String descripcion, Integer prioridad, Integer estado,
+			String fechaVencimiento) throws Exception;
+
+
+    
+    
+    
+
+
+    
+	void eliminarTarea(int idTarea) throws Exception;
+	
+
+	boolean existeTarea(int idTarea) throws Exception;
+
+
+
+    
     
 }
 
