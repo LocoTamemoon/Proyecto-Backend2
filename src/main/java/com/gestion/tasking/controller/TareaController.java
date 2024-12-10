@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -17,6 +16,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import com.gestion.tasking.entity.Tarea;
 import com.gestion.tasking.model.AuthResponse;
@@ -68,7 +68,7 @@ public class TareaController {
                 tarea.getFechaVencimiento()
             );
 
-            // Retornar la tarea registrada con la fecha formateada
+            // Retornar la tarea registrada
             return ResponseEntity.ok(nuevaTarea);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
@@ -76,14 +76,11 @@ public class TareaController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
     }
-    
-    
 
     @PostMapping("/proyecto")
     public ResponseEntity<?> obtenerTareasPorProyecto(@RequestBody Map<String, Integer> request) {
-        int idProyecto = request.get("idProyecto");  // Extraemos el idProyecto del cuerpo del JSON
-
-        if (idProyecto <= 0) {
+        Integer idProyecto = request.get("idProyecto");
+        if (idProyecto == null || idProyecto <= 0) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(new AuthResponse(400, "El ID del proyecto debe ser mayor a cero."));
         }
@@ -105,25 +102,20 @@ public class TareaController {
             tareaData.put("prioridad", tarea.getPrioridad());
             tareaData.put("estado", tarea.getEstado());
             tareaData.put("fechaVencimiento", tarea.getFechaVencimiento());
-            tareaData.put("fechaCreacion", tarea.getFechaCreacion()); // Incluir fechaCreacion en la respuesta
+            tareaData.put("fechaCreacion", tarea.getFechaCreacion());
             tareasResponse.add(tareaData);
         }
 
-        return ResponseEntity.ok(tareasResponse); // Respuesta con fechaCreacion
+        return ResponseEntity.ok(tareasResponse);
     }
 
-
-
- @PutMapping("/{id}")
+    @PutMapping("/{id}")
     public ResponseEntity<?> actualizarTarea(@PathVariable int id, @RequestBody Tarea tarea) {
         try {
-            // Verificar si la tarea existe
             if (!tareaService.existeTarea(id)) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
                         .body(new AuthResponse(400, "La tarea con el ID " + id + " no existe."));
             }
-
-            // Validaciones de los campos de la tarea
             if (tarea.getNombre() == null || tarea.getNombre().isEmpty()) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                         .body(new AuthResponse(400, "El nombre de la tarea es obligatorio."));
@@ -136,15 +128,6 @@ public class TareaController {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                         .body(new AuthResponse(400, "La prioridad de la tarea es obligatoria."));
             }
-            // Verifica si la prioridad es un número
-            if (tarea.getPrioridad() != null) {
-                String prioridadStr = tarea.getPrioridad().toString();
-                
-                // Usamos una expresión regular para verificar si es un número entero
-                if (!prioridadStr.matches("-?\\d+")) {
-                    return ResponseEntity.badRequest().body(new AuthResponse(400, "La prioridad de la tarea es obligatoria."));
-                }
-            }
             if (tarea.getEstado() == null) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                         .body(new AuthResponse(400, "El estado de la tarea es obligatorio."));
@@ -154,7 +137,6 @@ public class TareaController {
                         .body(new AuthResponse(400, "La fecha de vencimiento es obligatoria."));
             }
 
-            // Actualizar la tarea si pasa todas las validaciones
             Tarea actualizarTarea = tareaService.actualizarTarea(
                     id,
                     tarea.getNombre(),
@@ -165,7 +147,6 @@ public class TareaController {
             );
 
             return ResponseEntity.ok(actualizarTarea);
-
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         } catch (Exception e) {
@@ -173,17 +154,13 @@ public class TareaController {
         }
     }
 
-
     @DeleteMapping("/{id}")
     public ResponseEntity<AuthResponse> eliminarTarea(@PathVariable int id) {
         try {
-            // Verificar si la tarea existe
             if (!tareaService.existeTarea(id)) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
                         .body(new AuthResponse(400, "La tarea con el ID " + id + " no existe."));
             }
-
-            // Si la tarea existe, proceder con la eliminación
             tareaService.eliminarTarea(id);
             return ResponseEntity.ok(new AuthResponse(200, "Tarea con ID " + id + " eliminada exitosamente"));
         } catch (Exception e) {
@@ -191,33 +168,10 @@ public class TareaController {
                     .body(new AuthResponse(500, "Ocurrió un error al eliminar la tarea"));
         }
     }
-    
+
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<AuthResponse> handleJsonParseException(HttpMessageNotReadableException ex) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(new AuthResponse(400, "Hay errores en la validacion, revisa que los datos en el JSON sean correctos."));
+                .body(new AuthResponse(400, "Hay errores en la validación, revisa que los datos en el JSON sean correctos."));
     }
-    
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    
-
-
-
-
 }
