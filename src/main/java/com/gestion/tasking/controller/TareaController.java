@@ -8,6 +8,7 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -113,8 +114,7 @@ public class TareaController {
 
 
 
-
-     @PutMapping("/{id}")
+ @PutMapping("/{id}")
     public ResponseEntity<?> actualizarTarea(@PathVariable int id, @RequestBody Tarea tarea) {
         try {
             // Verificar si la tarea existe
@@ -135,6 +135,15 @@ public class TareaController {
             if (tarea.getPrioridad() == null) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                         .body(new AuthResponse(400, "La prioridad de la tarea es obligatoria."));
+            }
+            // Verifica si la prioridad es un número
+            if (tarea.getPrioridad() != null) {
+                String prioridadStr = tarea.getPrioridad().toString();
+                
+                // Usamos una expresión regular para verificar si es un número entero
+                if (!prioridadStr.matches("-?\\d+")) {
+                    return ResponseEntity.badRequest().body(new AuthResponse(400, "La prioridad de la tarea es obligatoria."));
+                }
             }
             if (tarea.getEstado() == null) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
@@ -182,6 +191,13 @@ public class TareaController {
                     .body(new AuthResponse(500, "Ocurrió un error al eliminar la tarea"));
         }
     }
+    
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<AuthResponse> handleJsonParseException(HttpMessageNotReadableException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(new AuthResponse(400, "Hay errores en la validacion, revisa que los datos en el JSON sean correctos."));
+    }
+    
 
 
 
