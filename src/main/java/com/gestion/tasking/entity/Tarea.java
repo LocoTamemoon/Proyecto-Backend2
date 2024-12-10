@@ -13,6 +13,7 @@ import lombok.NoArgsConstructor;
 public class Tarea {
     private int idProyecto;
     private int idTarea;
+    private int idUsuario;
     private String nombre;
     private String descripcion;
     private Integer prioridad;

@@ -16,21 +16,21 @@ public class TareaService {
     @Autowired
     private TareaDAO tareaDAO;
 
-    public Tarea registrarTarea(int idProyecto, String nombre, String descripcion, 
-                                 Integer prioridad, Integer estado, LocalDate fechaVencimiento) {
+    public Tarea registrarTarea(int idProyecto, int idUsuario, String nombre, String descripcion, 
+            Integer prioridad, Integer estado, LocalDate fechaVencimiento) {
 
-        // Convertir LocalDate a String en el formato adecuado (yyyy-MM-dd)
-        String fechaFormateada = fechaVencimiento.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+// Convertir LocalDate a String en el formato adecuado (yyyy-MM-dd)
+String fechaFormateada = fechaVencimiento.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
 
-        try {
-            // Registrar la tarea a través del DAO
-            return tareaDAO.registrarTarea(idProyecto, nombre, descripcion, prioridad, estado, fechaFormateada);
-        } catch (Exception e) {
-            // Si ocurre un error, propagar la excepción con el mensaje adecuado
-            throw new RuntimeException(e.getMessage()); // Excepción con el mensaje conciso
-        }
-    }
-    
+try {
+// Registrar la tarea a través del DAO, ahora pasando el idUsuario
+return tareaDAO.registrarTarea(idProyecto, idUsuario, nombre, descripcion, prioridad, estado, fechaFormateada);
+} catch (Exception e) {
+// Si ocurre un error, propagar la excepción con el mensaje adecuado
+throw new RuntimeException(e.getMessage()); // Excepción con el mensaje conciso
+}
+}
+
     
     public List<Tarea> obtenerTareasPorProyecto(int idProyecto) {
         return tareaDAO.obtenerTareasPorProyecto(idProyecto);

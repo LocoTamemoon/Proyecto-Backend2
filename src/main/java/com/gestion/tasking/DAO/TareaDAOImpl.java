@@ -22,36 +22,39 @@ public class TareaDAOImpl implements TareaDAO {
     private JdbcTemplate jdbcTemplate;
 
     @Override
-    public Tarea registrarTarea(int idProyecto, String nombre, String descripcion, 
-                                  Integer prioridad, Integer estado, String fechaVencimiento) throws Exception {
-         
-         // Llamar al stored procedure para registrar la tarea
-         String procedureCall = "{CALL RegistrarTarea(?, ?, ?, ?, ?, ?)}";
-         
-         try {
-             jdbcTemplate.update(procedureCall, idProyecto, nombre, descripcion, prioridad, estado, fechaVencimiento);
-         } catch (DataAccessException e) {
-             // Comprobamos si el errorCode es 45000 (tarea duplicada)
-             if (e.getMessage().contains("45000")) {
-                 // Lanzar excepción con el código de error y el mensaje conciso
-                 throw new Exception("{\"error\": 1644, \"message\": \"Ya existe una tarea con el mismo nombre en este proyecto.\"}");
-             } else {
-                 // Si es otro tipo de error, lanzar la excepción original
-                 throw new Exception("{\"error\": 500, \"message\": \"Error al registrar la tarea: " + e.getMessage() + "\"}");
-             }
-         }
+    public Tarea registrarTarea(int idProyecto, int idUsuario, String nombre, String descripcion, 
+                                 Integer prioridad, Integer estado, String fechaVencimiento) throws Exception {
 
-         // Si la tarea se registra correctamente
-         Tarea tarea = new Tarea();
-         tarea.setIdProyecto(idProyecto);
-         tarea.setNombre(nombre);
-         tarea.setDescripcion(descripcion);
-         tarea.setPrioridad(prioridad);
-         tarea.setEstado(estado);
-         tarea.setFechaVencimiento(java.time.LocalDate.parse(fechaVencimiento));
+        // Llamar al stored procedure para registrar la tarea
+        String procedureCall = "{CALL RegistrarTarea(?, ?, ?, ?, ?, ?, ?)}";
+        
+        try {
+            // Llamamos al procedimiento pasando el nuevo parámetro idUsuario
+            jdbcTemplate.update(procedureCall, idProyecto, idUsuario, nombre, descripcion, prioridad, estado, fechaVencimiento);
+        } catch (DataAccessException e) {
+            // Comprobamos si el errorCode es 45000 (tarea duplicada)
+            if (e.getMessage().contains("45000")) {
+                // Lanzar excepción con el código de error y el mensaje conciso
+                throw new Exception("{\"error\": 1644, \"message\": \"Ya existe una tarea con el mismo nombre en este proyecto.\"}");
+            } else {
+                // Si es otro tipo de error, lanzar la excepción original
+                throw new Exception("{\"error\": 500, \"message\": \"Error al registrar la tarea: " + e.getMessage() + "\"}");
+            }
+        }
 
-         return tarea;
-     }
+        // Si la tarea se registra correctamente
+        Tarea tarea = new Tarea();
+        tarea.setIdProyecto(idProyecto);
+        tarea.setIdUsuario(idUsuario);  // Establecer el idUsuario en la tarea
+        tarea.setNombre(nombre);
+        tarea.setDescripcion(descripcion);
+        tarea.setPrioridad(prioridad);
+        tarea.setEstado(estado);
+        tarea.setFechaVencimiento(java.time.LocalDate.parse(fechaVencimiento));
+
+        return tarea;
+    }
+
 
     @Override
     public List<Tarea> obtenerTareasPorProyecto(int idProyecto) {

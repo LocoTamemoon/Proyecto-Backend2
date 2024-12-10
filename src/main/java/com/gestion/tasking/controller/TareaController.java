@@ -58,9 +58,10 @@ public class TareaController {
                         .body(new AuthResponse(400, "La fecha de vencimiento es obligatoria."));
             }
 
-            // Llamar al servicio para registrar la tarea
+            // Llamar al servicio para registrar la tarea, ahora incluyendo el idUsuario
             Tarea nuevaTarea = tareaService.registrarTarea(
                 tarea.getIdProyecto(),
+                tarea.getIdUsuario(), // Asegúrate de que `idUsuario` esté presente en el objeto Tarea
                 tarea.getNombre(),
                 tarea.getDescripcion(),
                 tarea.getPrioridad(),
@@ -76,6 +77,7 @@ public class TareaController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
     }
+
 
     @PostMapping("/proyecto")
     public ResponseEntity<?> obtenerTareasPorProyecto(@RequestBody Map<String, Integer> request) {
