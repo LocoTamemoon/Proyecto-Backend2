@@ -113,12 +113,15 @@ public class TareaController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> actualizarTarea(@PathVariable int id, @RequestBody Tarea tarea) {
+    public ResponseEntity<?> actualizarTarea(@PathVariable("id") int id, @RequestBody Tarea tarea) {
         try {
+            // Verificar si la tarea existe
             if (!tareaService.existeTarea(id)) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
                         .body(new AuthResponse(400, "La tarea con el ID " + id + " no existe."));
             }
+
+            // Validaciones de los campos obligatorios
             if (tarea.getNombre() == null || tarea.getNombre().isEmpty()) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                         .body(new AuthResponse(400, "El nombre de la tarea es obligatorio."));
@@ -140,6 +143,7 @@ public class TareaController {
                         .body(new AuthResponse(400, "La fecha de vencimiento es obligatoria."));
             }
 
+            // Actualización de la tarea
             Tarea actualizarTarea = tareaService.actualizarTarea(
                     id,
                     tarea.getNombre(),
@@ -149,13 +153,17 @@ public class TareaController {
                     tarea.getFechaVencimiento()
             );
 
-            return ResponseEntity.ok(actualizarTarea);
+            // Respuesta de éxito
+            return ResponseEntity.status(HttpStatus.OK)
+                    .body(new AuthResponse(200, "Actualización exitosa"));
+
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new AuthResponse(400, e.getMessage()));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new AuthResponse(500, "Error en el servidor"));
         }
     }
+
 
     @DeleteMapping("/{id}")
     public ResponseEntity<AuthResponse> eliminarTarea(@PathVariable int id) {
