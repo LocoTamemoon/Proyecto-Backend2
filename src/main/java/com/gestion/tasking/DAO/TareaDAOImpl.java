@@ -84,8 +84,7 @@ public class TareaDAOImpl implements TareaDAO {
 
 
 
-      
-    @Override
+  @Override
     public Tarea actualizarTarea(int idTarea, String nombre, String descripcion,
                                   Integer prioridad, Integer estado, String fechaVencimiento) throws Exception {
         // Llamar al stored procedure para actualizar la tarea
