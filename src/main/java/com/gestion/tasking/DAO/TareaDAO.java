@@ -31,6 +31,7 @@ public interface TareaDAO {
 	boolean existeTarea(int idTarea) throws Exception;
 
 
+	Tarea obtenerTareaPorId(int idTarea) throws Exception;
 
     
     

@@ -64,8 +64,10 @@ throw new RuntimeException(e.getMessage()); // Excepción con el mensaje conciso
 
 
 
-
-
+	
+	public Tarea obtenerTareaPorId(int idTarea) throws Exception {
+	    return tareaDAO.obtenerTareaPorId(idTarea);
+	}
 
 
 

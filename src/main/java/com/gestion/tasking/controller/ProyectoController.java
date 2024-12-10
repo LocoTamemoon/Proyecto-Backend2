@@ -2,9 +2,7 @@ package com.gestion.tasking.controller;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -16,9 +14,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.gestion.tasking.entity.Prioridad;
@@ -91,6 +91,35 @@ public class ProyectoController {
 
 
 
+    
+    
+    
+    
+    
+    
+    
+    @GetMapping("/listarPorID")
+    public ResponseEntity<?> listarProyectos(@RequestParam Integer idUsuario) {
+        Optional<User> optionalUsuario = userRepository.findById(idUsuario);
+
+        if (optionalUsuario.isEmpty()) {
+            logger.warn("El usuario con ID {} no existe", idUsuario);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("message", "El usuario con ID " + idUsuario + " no existe"));
+        }
+        User usuario = optionalUsuario.get();
+        List<Proyecto> proyectos = proyectoService.listarProyectosPorUsuario(usuario);
+        if (proyectos.isEmpty()) {
+            logger.info("No se encontraron proyectos para el usuario con ID {}", idUsuario);
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        }
+        logger.info("Se encontraron {} proyectos para el usuario con ID {}", proyectos.size(), idUsuario);
+        return ResponseEntity.ok(proyectos);
+    }
+    
+    
+    
+    
     
     
    
