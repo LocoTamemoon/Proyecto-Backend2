@@ -1,6 +1,7 @@
 package com.gestion.tasking.service;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -28,6 +29,16 @@ public class ProyectoService {
     public Proyecto agregarProyecto(Proyecto proyecto) {
         // Lógica adicional, como validar datos del proyecto si es necesario
         return proyectoDAO.save(proyecto);
+    }
+
+    
+    
+    public List<Proyecto> listarProyectosPorUsuario(Integer idUsuario) {
+        return proyectoDAO.listarProyectosPorUsuario(idUsuario);
+    }
+    
+    public Optional<Proyecto> findById(Integer idProyecto) {
+        return proyectoDAO.findById(idProyecto);
     }
 
 }

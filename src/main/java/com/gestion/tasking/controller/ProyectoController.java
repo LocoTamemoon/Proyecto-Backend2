@@ -3,6 +3,7 @@ package com.gestion.tasking.controller;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,10 +16,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.gestion.tasking.entity.Prioridad;
@@ -94,35 +95,40 @@ public class ProyectoController {
     
     
     
-    
-    
-    
-    
-    @GetMapping("/listarPorID")
-    public ResponseEntity<?> listarProyectos(@RequestParam Integer idUsuario) {
-        Optional<User> optionalUsuario = userRepository.findById(idUsuario);
+    @GetMapping("/{idProyecto}")
+    public ResponseEntity<?> listarProyectoPorId(@PathVariable(value = "idProyecto", required = false) Integer idProyecto) {
+        // Validación: si no se proporciona idProyecto
+        if (idProyecto == null || idProyecto <= 0) {
+            logger.warn("Falta el ID del proyecto en la solicitud");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("message", "Falta el ID del proyecto. Se debe introducir un ID de proyecto válido en la URL."));
+        }
 
-        if (optionalUsuario.isEmpty()) {
-            logger.warn("El usuario con ID {} no existe", idUsuario);
+        Optional<Proyecto> optionalProyecto = proyectoService.findById(idProyecto);
+
+        if (optionalProyecto.isEmpty()) {
+            logger.warn("El proyecto con ID {} no existe", idProyecto);
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(Map.of("message", "El usuario con ID " + idUsuario + " no existe"));
+                    .body(Map.of("message", "El proyecto con ID " + idProyecto + " no existe"));
         }
-        User usuario = optionalUsuario.get();
-        List<Proyecto> proyectos = proyectoService.listarProyectosPorUsuario(usuario);
-        if (proyectos.isEmpty()) {
-            logger.info("No se encontraron proyectos para el usuario con ID {}", idUsuario);
-            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-        }
-        logger.info("Se encontraron {} proyectos para el usuario con ID {}", proyectos.size(), idUsuario);
-        return ResponseEntity.ok(proyectos);
+
+        Proyecto proyecto = optionalProyecto.get();
+        logger.info("Se encontró el proyecto con ID {}", idProyecto);
+
+        // Mapear el proyecto a un HashMap para la salida
+        Map<String, Object> response = Map.of(
+            "idUsuario", proyecto.getUsuario() != null ? proyecto.getUsuario().getId() : "No disponible",
+            "nombre", proyecto.getNombreTgProyectos(),
+            "descripcion", proyecto.getDescripcionTgProyectos(),
+            "prioridad", proyecto.getPrioridad() != null ? proyecto.getPrioridad().getNombrePrioridad() : "No definida",
+            "fechaCreacion", proyecto.getFechaCreacionTgProyectos(),
+            "fechaVencimiento", proyecto.getFechaVencimientoTgProyectos()
+        );
+
+        return ResponseEntity.ok(response);
     }
-    
-    
-    
-    
-    
-    
-   
+
+
     
     @PostMapping("/registrar")
     public ResponseEntity<?> registrarProyecto(@RequestBody Map<String, Object> input) {

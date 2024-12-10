@@ -1,6 +1,7 @@
 package com.gestion.tasking.DAO;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.stereotype.Repository;
 
@@ -40,5 +41,20 @@ public class ProyectoDAOImpl implements ProyectoDAO {
     }
 
 
+    @Override
+    public Optional<Proyecto> findById(Integer idProyecto) {
+        String jpql = "SELECT p FROM Proyecto p WHERE p.idTgProyectos = :idProyecto";
+        TypedQuery<Proyecto> query = entityManager.createQuery(jpql, Proyecto.class);
+        query.setParameter("idProyecto", idProyecto);
 
-}
+        return query.getResultList().stream().findFirst();  
+    }
+
+	@Override
+	public List<Proyecto> listarProyectosPorUsuario(Integer idUsuario) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+    
+
+    }
