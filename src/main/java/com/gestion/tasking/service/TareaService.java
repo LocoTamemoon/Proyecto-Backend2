@@ -3,6 +3,8 @@ package com.gestion.tasking.service;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Optional;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -91,6 +93,23 @@ throw new RuntimeException(e.getMessage()); // Excepción con el mensaje conciso
 	    // Guardar los cambios
 	    return tareaRepository.save(tarea);
 	}
+	
+	
+	
+	
+	
+	
+	public TareaEntity actualizarPrioridadTarea(int idTgTareas, int idTmPrioridad) {
+        Optional<TareaEntity> tareaOpt = tareaRepository.findById(idTgTareas);
+        if(tareaOpt.isPresent()) {
+            TareaEntity tarea = tareaOpt.get();
+            tarea.setIdTmPrioridad(idTmPrioridad);
+            return tareaRepository.save(tarea);
+        }
+        else {
+            throw new RuntimeException("No se encontro tarea con el idTgTareas:  " + idTgTareas);
+        }
+    }
 
     
 }

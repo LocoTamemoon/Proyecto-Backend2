@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.gestion.tasking.entity.Tarea;
 import com.gestion.tasking.entity.TareaEntity;
 import com.gestion.tasking.model.ActualizarEstadoTareaDTO;
+import com.gestion.tasking.model.ActualizarPrioridadTareaDTO;
 import com.gestion.tasking.model.AuthResponse;
 import com.gestion.tasking.service.TareaService;
 
@@ -208,6 +209,17 @@ public class TareaController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(new AuthResponse(404, "No se encontró la tarea con ID: " + id));
         }
+    }
+    
+    
+    
+    @PostMapping("/actualizar-prioridad")
+    public ResponseEntity<TareaEntity> actualizarPrioridad(@RequestBody ActualizarPrioridadTareaDTO prioridadDTO) {
+        TareaEntity tareaActualizada = tareaService.actualizarPrioridadTarea(
+                prioridadDTO.getIdTgTareas(),
+                prioridadDTO.getIdTmPrioridad()
+        );
+        return ResponseEntity.ok(tareaActualizada);
     }
 
     
