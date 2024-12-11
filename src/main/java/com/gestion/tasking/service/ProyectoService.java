@@ -9,7 +9,10 @@ import org.springframework.stereotype.Service;
 import com.gestion.tasking.DAO.ProyectoDAO;
 import com.gestion.tasking.entity.Proyecto;
 import com.gestion.tasking.entity.User;
+import com.gestion.tasking.model.ResponseDTO;
+import jakarta.persistence.EntityManager;
 
+import jakarta.persistence.StoredProcedureQuery;
 import jakarta.transaction.Transactional;
 
 @Service
@@ -17,6 +20,9 @@ public class ProyectoService {
 
     @Autowired
     private ProyectoDAO proyectoDAO;
+    
+    @Autowired
+    private EntityManager entityManager;
 
    
     public List<Proyecto> listarProyectosPorUsuario(User usuario) {
@@ -41,4 +47,34 @@ public class ProyectoService {
         return proyectoDAO.findById(idProyecto);
     }
 
+    
+    
+    
+    
+    
+    
+
+public ResponseDTO insertarProyecto(Integer idUsuario, Integer idPrioridad, String nombreProyecto, String descripcionProyecto, java.sql.Date fechaVencimiento) {
+        
+        StoredProcedureQuery query = entityManager.createNamedStoredProcedureQuery("sp_insertar_proyecto");
+
+        
+        query.setParameter("p_id_usuario", idUsuario);
+        query.setParameter("p_id_tm_prioridad", idPrioridad);
+        query.setParameter("p_nombre_tg_proyectos", nombreProyecto);
+        query.setParameter("p_descripcion_tg_proyectos", descripcionProyecto);
+        query.setParameter("p_fecha_vencimiento", fechaVencimiento);
+
+        
+        query.execute();
+
+        //PARA LA RESPUSTA DEL CONTROLER :D
+        String mensaje = (String) query.getOutputParameterValue("p_mensaje");
+        Integer codigo = (Integer) query.getOutputParameterValue("p_codigo");
+        Integer idProyecto = (Integer) query.getOutputParameterValue("p_id_tg_proyectos");
+
+     
+        return new ResponseDTO(mensaje, codigo, idProyecto);
+    }
+    
 }

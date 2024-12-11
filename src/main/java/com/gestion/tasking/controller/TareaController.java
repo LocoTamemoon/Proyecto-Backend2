@@ -20,6 +20,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.gestion.tasking.entity.Tarea;
+import com.gestion.tasking.entity.TareaEntity;
+import com.gestion.tasking.model.ActualizarEstadoTareaDTO;
 import com.gestion.tasking.model.AuthResponse;
 import com.gestion.tasking.service.TareaService;
 
@@ -187,6 +189,13 @@ public class TareaController {
     }
     
     
+    
+    @PostMapping("/actualizar-estado")
+    public TareaEntity actualizarEstado(@RequestBody  ActualizarEstadoTareaDTO request) {
+    	
+    	return tareaService.actualizarEstadoTarea(request.getIdTgTareas(), request.getNuevoEstado());
+    	
+    }
     
     
     

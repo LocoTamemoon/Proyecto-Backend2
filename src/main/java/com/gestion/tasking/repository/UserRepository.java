@@ -2,6 +2,7 @@ package com.gestion.tasking.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
+
 import com.gestion.tasking.entity.User;
 
 @Repository

@@ -9,12 +9,19 @@ import org.springframework.stereotype.Service;
 
 import com.gestion.tasking.DAO.TareaDAO;
 import com.gestion.tasking.entity.Tarea;
+import com.gestion.tasking.entity.TareaEntity;
+import com.gestion.tasking.repository.TareaRepository;
+
+import jakarta.persistence.EntityNotFoundException;
 
 @Service
 public class TareaService {
 
     @Autowired
     private TareaDAO tareaDAO;
+    
+    @Autowired
+	private TareaRepository tareaRepository;
 
     public Tarea registrarTarea(int idProyecto, int idUsuario, String nombre, String descripcion, 
             Integer prioridad, Integer estado, LocalDate fechaVencimiento) {
@@ -70,6 +77,20 @@ throw new RuntimeException(e.getMessage()); // Excepción con el mensaje conciso
 	}
 
 
+	
+
+	// Metodo para actualizar el estado de la tarea
+	public TareaEntity actualizarEstadoTarea(int idTgTareas, int nuevoEstado) {
+	    // Buscar la tarea, lanzar excepción si no se encuentra
+	    TareaEntity tarea = tareaRepository.findById(idTgTareas)
+	        .orElseThrow(() -> new EntityNotFoundException("No se encontró tarea con el idTgTareas: " + idTgTareas));
+
+	    // Actualizar el estado
+	    tarea.setIdTmEstado(nuevoEstado);
+
+	    // Guardar los cambios
+	    return tareaRepository.save(tarea);
+	}
 
     
 }
